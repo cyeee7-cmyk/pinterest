@@ -16,6 +16,13 @@ model User {
   pinterestToken    String?
   pinterestRefreshToken String?
   pinterestUserId   String?
+
+  // 订阅信息
+  subscriptionStatus String    @default("free") // free, active, canceled
+  stripeCustomerId   String?   @unique
+  stripeSubscriptionId String? @unique
+  subscriptionEndDate DateTime?
+
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   pins              Pin[]
