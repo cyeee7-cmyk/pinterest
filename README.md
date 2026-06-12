@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pinterest自动化SaaS - MVP
 
-## Getting Started
+## 快速开始
 
-First, run the development server:
-
+### 1. 安装依赖
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. 配置环境变量
+编辑 `.env.local`，填入你的Pinterest API凭证：
+```
+PINTEREST_CLIENT_ID=your-app-id
+PINTEREST_CLIENT_SECRET=your-app-secret
+PINTEREST_ACCESS_TOKEN=your-token
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. 启动开发服务器
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+访问 http://localhost:3000
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 功能概览
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+✅ **登录/注册** - 邮箱和密码认证  
+✅ **发布Pin** - 输入标题、描述和图片URL  
+✅ **Pin管理** - 查看已发布的Pin  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 下一步（第4-6周）
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 1. Pinterest OAuth集成
+- 替换简单token为Pinterest OAuth
+- 获取用户Pinterest账户信息
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 2. 添加定时发布
+- 创建定时任务队列 (Bull)
+- 支持后台发布Pin
+
+### 3. 计费系统
+- 集成Stripe
+- 实现订阅管理
+
+### 4. 分析仪表板
+- 显示Pin的互动数据
+- 统计信息图表
+
+---
+
+## 项目结构
+```
+/app
+  /api
+    /auth - 登录/注册
+    /pins - Pin管理
+  /auth - 登录页面
+  /dashboard - 主应用页面
+/prisma
+  schema.prisma - 数据库模型
+```
+
+## API端点
+
+- `POST /api/auth/register` - 注册
+- `POST /api/auth/login` - 登录
+- `POST /api/pins/create` - 创建Pin
+
+需要在请求头中添加 `Authorization: Bearer <token>`
