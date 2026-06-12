@@ -29,6 +29,9 @@ model Pin {
   description String?
   imageUrl  String
   pinUrl    String?
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  status    String     @default("draft") // draft, scheduled, published
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }

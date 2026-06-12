@@ -7,6 +7,7 @@ export default function Dashboard() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
   const [loading, setLoading] = useState(false);
   const [pins, setPins] = useState<any[]>([]);
   const [pinterestConnected, setPinterestConnected] = useState(false);
@@ -57,22 +58,32 @@ export default function Dashboard() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/pins/create", {
+
+      // 如果有定时时间，使用schedule端点，否则立即发布
+      const endpoint = scheduledAt ? "/api/pins/schedule" : "/api/pins/create";
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title, description, imageUrl }),
+        body: JSON.stringify({
+          title,
+          description,
+          imageUrl,
+          scheduledAt: scheduledAt || null,
+        }),
       });
 
       const data = await res.json();
       if (data.success) {
-        alert("Pin发布成功!");
+        alert(scheduledAt ? "Pin已安排定时发布!" : "Pin发布成功!");
         setPins([data.pin, ...pins]);
         setTitle("");
         setDescription("");
         setImageUrl("");
+        setScheduledAt("");
       } else {
         alert(data.error);
       }
@@ -84,6 +95,15 @@ export default function Dashboard() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     router.push("/auth");
+  };
+
+  const getStatusBadge = (status: string) => {
+    const badges: Record<string, string> = {
+      draft: "📝 草稿",
+      scheduled: "⏰ 定时中",
+      published: "✅ 已发布",
+    };
+    return badges[status] || status;
   };
 
   return (
@@ -146,12 +166,28 @@ export default function Dashboard() {
                       className="w-full px-4 py-2 border rounded-lg"
                       required
                     />
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        定时发布 (可选)
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={scheduledAt}
+                        onChange={(e) => setScheduledAt(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg"
+                      />
+                      {scheduledAt && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          将在 {new Date(scheduledAt).toLocaleString("zh-CN")} 发布
+                        </p>
+                      )}
+                    </div>
                     <button
                       type="submit"
                       disabled={loading}
                       className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
                     >
-                      {loading ? "发布中..." : "发布Pin"}
+                      {loading ? "处理中..." : scheduledAt ? "⏰ 安排发布" : "📤 立即发布"}
                     </button>
                   </form>
                 </>
@@ -169,13 +205,25 @@ export default function Dashboard() {
                 ) : (
                   pins.map((pin) => (
                     <div key={pin.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold flex-1">{pin.title}</h3>
+                        <span className="text-xs bg-gray-200 px-2 py-1 rounded">
+                          {getStatusBadge(pin.status)}
+                        </span>
+                      </div>
                       <img
                         src={pin.imageUrl}
                         alt={pin.title}
                         className="w-full h-40 object-cover rounded mb-2"
                       />
-                      <h3 className="font-bold">{pin.title}</h3>
-                      <p className="text-sm text-gray-600">{pin.description}</p>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {pin.description}
+                      </p>
+                      {pin.scheduledAt && (
+                        <p className="text-xs text-gray-500">
+                          ⏰ {new Date(pin.scheduledAt).toLocaleString("zh-CN")}
+                        </p>
+                      )}
                     </div>
                   ))
                 )}
