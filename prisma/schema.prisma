@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  password  String
-  name      String?
-  pinterestToken String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  pins      Pin[]
+  id                String     @id @default(cuid())
+  email             String     @unique
+  password          String
+  name              String?
+  pinterestConnected Boolean   @default(false)
+  pinterestToken    String?
+  pinterestRefreshToken String?
+  pinterestUserId   String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  pins              Pin[]
 }
 
 model Pin {
